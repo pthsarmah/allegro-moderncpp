@@ -23,11 +23,13 @@ int main() {
 
 		mouse.Update();
 
+		if (mouse.GetMouseButtonPressed(0)) {
+			std::println("Left mouse button pressed!");
+			std::fflush(stdout);
+		}
+
 		if (timer.Tick()) {
-			if (mouse.GetMouseButtonPressed(0))
-				std::print("{}", "Left mouse button pressed!");
-			else if (mouse.GetMouseButtonDown(1))
-				std::print("{}", "Right mouse button pressed!");
+
 		}
 	}
 
