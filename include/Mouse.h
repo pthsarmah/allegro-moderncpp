@@ -9,6 +9,9 @@ private:
 	ALLEGRO_EVENT_QUEUE* mouseEq;
 	ALLEGRO_EVENT ev;
 	bool buttonsDown[3] = {0};
+
+	ALLEGRO_MOUSE_STATE currentState{};
+	ALLEGRO_MOUSE_STATE previousState{};
 public:
 	Mouse() {
 		al_install_mouse();
@@ -31,6 +34,10 @@ public:
 		return *this;
 	}
 	void Update() {
+
+		previousState = currentState;
+		al_get_mouse_state(&currentState);
+
 		while(al_get_next_event(mouseEq, &ev)) {
 			if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 				unsigned int btnId = ev.mouse.button-1;
@@ -45,7 +52,9 @@ public:
 		return buttonsDown[id];
 	}
 	bool GetMouseButtonPressed(unsigned int id) {
-		return true;
+		bool current = currentState.buttons & (1 << id);
+		bool previous = previousState.buttons & (1 << id);
+		return current && !previous;
 	}
 	bool GetMouseButtonReleased(unsigned int id) {
 		return true;
