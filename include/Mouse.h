@@ -33,6 +33,10 @@ public:
 
 		return *this;
 	}
+	~Mouse() {
+		al_destroy_event_queue(mouseEq);
+		al_uninstall_mouse();
+	}
 	void Update() {
 
 		previousState = currentState;

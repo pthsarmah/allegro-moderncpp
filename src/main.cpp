@@ -1,8 +1,12 @@
+#include <allegro5/keycodes.h>
 #include <allegro5/system.h>
+#include <cstdio>
 #include <print>
+
 #include "../include/Display.h"
 #include "../include/Mouse.h"
 #include "../include/Timer.h"
+#include "../include/Keyboard.h"
 
 int main() {
 	al_init();
@@ -13,6 +17,7 @@ int main() {
 	Display display{800, 600};
 	Mouse mouse;
 	Timer timer(300);
+	Keyboard kb;
 
 	double prev_time = al_get_time();
 
@@ -22,14 +27,19 @@ int main() {
 		prev_time = curr_time;
 
 		mouse.Update();
+		kb.Update();
 
 		if (mouse.GetMouseButtonPressed(0)) {
 			std::println("Left mouse button pressed!");
 			std::fflush(stdout);
 		}
 
-		if (timer.Tick()) {
-
+		if (kb.GetKeyPressed(ALLEGRO_KEY_S)) {
+			std::println("Key S pressed!");
+			std::fflush(stdout);
+		} else if (kb.GetKeyReleased(ALLEGRO_KEY_S)) {
+			std::println("Key S released!");
+			std::fflush(stdout);
 		}
 	}
 
