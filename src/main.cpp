@@ -6,7 +6,6 @@
 #include <allegro5/allegro_image.h>
 
 #include <stdexcept>
-#include <unordered_map>
 
 #include "../include/Display.h"
 #include "../include/Mouse.h"
@@ -33,9 +32,12 @@ int main() {
 
 	//test bullet
 	Tank tank1(100, 100);
+	Tank tank2(200, 50);
+
 	Bullet bullet;
 
 	renderer.add(tank1);
+	renderer.add(tank2);
 	renderer.add(bullet);
 
 	double prev_time = al_get_time();
@@ -63,11 +65,27 @@ int main() {
 			tank1.setDirection(3);
 		}
 
+		if (kb.GetKeyPressed(ALLEGRO_KEY_W)) {
+			tank2.setDirection(0);
+		} else if (kb.GetKeyPressed(ALLEGRO_KEY_D)) {
+			tank2.setDirection(1);
+		} else if (kb.GetKeyPressed(ALLEGRO_KEY_S)) {
+			tank2.setDirection(2);
+		} else if (kb.GetKeyPressed(ALLEGRO_KEY_A)) {
+			tank2.setDirection(3);
+		}
+
 		if (kb.GetKeyDown(ALLEGRO_KEY_UP) ||
 		kb.GetKeyDown(ALLEGRO_KEY_DOWN) ||
 		kb.GetKeyDown(ALLEGRO_KEY_RIGHT) ||
 		kb.GetKeyDown(ALLEGRO_KEY_LEFT))
 			tank1.move();
+
+		if (kb.GetKeyDown(ALLEGRO_KEY_W) ||
+		kb.GetKeyDown(ALLEGRO_KEY_S) ||
+		kb.GetKeyDown(ALLEGRO_KEY_D) ||
+		kb.GetKeyDown(ALLEGRO_KEY_A))
+			tank2.move();
 
 		bullet.move();
 

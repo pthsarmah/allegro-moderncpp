@@ -14,6 +14,9 @@
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
+#define BULLET_SCALE_FACTOR 2
+#define BULLET_WIDTH 32 * BULLET_SCALE_FACTOR
+#define BULLET_HEIGHT 32 * BULLET_SCALE_FACTOR
 
 class Bullet : public Entity {
 private:
@@ -24,7 +27,7 @@ private:
 	ALLEGRO_BITMAP* bitmap;
 public:
 	Bullet() {
-		bitmap = al_load_bitmap("assets/bullet.bmp");
+		bitmap = al_load_bitmap("assets/bullet.png");
 		if (!bitmap) throw std::runtime_error("Bitmap could not be loaded");
 	}
 	Bullet(const char* path) {
@@ -63,36 +66,44 @@ public:
 	void draw() override {
 		float sx = 0, sy = 0;
 		sx = direction * 32;
-		al_draw_scaled_bitmap(bitmap, sx, sy, 32, 32, x, y, 128, 128, 0);
+		al_draw_scaled_bitmap(bitmap, sx, sy, 32, 32, x, y, BULLET_WIDTH, BULLET_HEIGHT, 0);
 	}
 
 	void move() {
 		// 0123 - TRBL
+		
+		int halfWidth = BULLET_WIDTH / 2;
+		int halfHeight = BULLET_HEIGHT / 2;
+
 		switch (direction) {
-			case 0:
-				if (y < 0) { y = SCREEN_HEIGHT-1; break; }
-				if (y > 0) y -= speed;
+			case 0: // Top
+				y -= speed;
+				if (y < -halfHeight)
+					y = SCREEN_HEIGHT - halfHeight;
 				break;
-			case 1:
-				if (x >= SCREEN_WIDTH) { x = 0; break; }
-				if (x < SCREEN_WIDTH) x += speed;
+			case 1: // Right
+				x += speed;
+				if (x + halfWidth > SCREEN_WIDTH)
+					x = halfWidth;
 				break;
-			case 2:
-				if (y >= SCREEN_HEIGHT) { y = 0; break; }
-				if (y < SCREEN_HEIGHT) y += speed;
+			case 2: // Bottom
+				y += speed;
+				if (y + halfHeight > SCREEN_HEIGHT)
+					y = halfHeight;
 				break;
-			case 3:
-				if (x < 0) { x = SCREEN_WIDTH-1; break; }
-				if (x > 0) x -= speed;
+			case 3: // Left
+				x -= speed;
+				if (x < -halfWidth)
+					x = SCREEN_WIDTH - halfWidth;
 				break;
 			default:
-			throw std::runtime_error("Wrong direction!");
+				throw std::runtime_error("Wrong direction!");
 		}
 	}
 };
 
 class AdvancedBullet : public Bullet {
-	AdvancedBullet(): Bullet("assets/advanced_bullet.bmp") {
+	AdvancedBullet(): Bullet("assets/advanced_bullet.png") {
 		setDamagePerHit(10.0);
 		setSpeed(5.0);
 	}

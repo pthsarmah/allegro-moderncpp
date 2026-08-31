@@ -2,27 +2,32 @@
 
 #include "./Bullet.h"
 
+#include <allegro5/allegro_primitives.h>
 #include <allegro5/base.h>
 #include <allegro5/bitmap.h>
 #include <allegro5/bitmap_draw.h>
 #include <allegro5/bitmap_io.h>
+#include <allegro5/color.h>
 #include <array>
 #include <stdexcept>
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
+#define TANK_SCALE_FACTOR 2
+#define TANK_WIDTH 32 * TANK_SCALE_FACTOR
+#define TANK_HEIGHT 32 * TANK_SCALE_FACTOR
 
 class Tank : public Entity {
 private:
 	float health = 100.0;
-	float x, y = 0.0;
+	float x, y = 0.0; //these are the CENTER coords not top left
 	float speed = 5.0;
 	Bullet bullet;
 	ALLEGRO_BITMAP* bitmap;
 	int direction = 0;
 public:
 	Tank(float x, float y): x(x), y(y) {
-		bitmap = al_load_bitmap("assets/tank01.bmp");
+		bitmap = al_load_bitmap("assets/tank01.png");
 	}
 	Tank(const Tank&) = delete;
 	Tank& operator=(const Tank&) = delete;
@@ -39,30 +44,38 @@ public:
 	//end getters & setters
 
 	void draw() override {
-		al_draw_scaled_rotated_bitmap(bitmap, 15, 15, x+100, y+100, 2, 2, direction * ALLEGRO_PI / 2, 0);
+		al_draw_scaled_rotated_bitmap(bitmap, 15, 15, x, y, TANK_SCALE_FACTOR, TANK_SCALE_FACTOR, direction * ALLEGRO_PI / 2, 0);
 	}
 
 	void move() {
 		// 0123 - TRBL
+		
+		int halfWidth = TANK_WIDTH / 2;
+		int halfHeight = TANK_HEIGHT / 2;
+
 		switch (direction) {
-			case 0:
-				if (y < 0) { y = SCREEN_HEIGHT-1; break; }
-				if (y > 0) y -= speed;
+			case 0: // Top
+				y -= speed;
+				if (y < halfHeight)
+					y = halfHeight;
 				break;
-			case 1:
-				if (x >= SCREEN_WIDTH) { x = 0; break; }
-				if (x < SCREEN_WIDTH) x += speed;
+			case 1: // Right
+				x += speed;
+				if (x + halfWidth > SCREEN_WIDTH)
+					x = SCREEN_WIDTH - halfWidth;
 				break;
-			case 2:
-				if (y >= SCREEN_HEIGHT) { y = 0; break; }
-				if (y < SCREEN_HEIGHT) y += speed;
+			case 2: // Bottom
+				y += speed;
+				if (y + halfHeight > SCREEN_HEIGHT)
+					y = SCREEN_HEIGHT - halfHeight;
 				break;
-			case 3:
-				if (x < 0) { x = SCREEN_WIDTH-1; break; }
-				if (x > 0) x -= speed;
+			case 3: // Left
+				x -= speed;
+				if (x < halfWidth)
+					x = halfWidth;
 				break;
 			default:
-			std::runtime_error("Wrong direction!");
+				throw std::runtime_error("Wrong direction!");
 		}
 	}
 };
