@@ -4,10 +4,13 @@
 #include <allegro5/bitmap.h>
 #include <allegro5/bitmap_draw.h>
 #include <allegro5/bitmap_io.h>
+#include <allegro5/color.h>
 #include <array>
+#include <cstdio>
 #include <stdexcept>
 
 #include<allegro5/allegro.h>
+#include<allegro5/allegro_primitives.h>
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -15,9 +18,9 @@
 class Bullet : public Entity {
 private:
 	float damagePerHit = 5.0;
-	float x, y = 0.0;
+	float x = 0.0, y = 0.0;
 	float speed = 1.0;
-	int direction = 0;
+	int direction = 1;
 	ALLEGRO_BITMAP* bitmap;
 public:
 	Bullet() {
@@ -51,6 +54,10 @@ public:
 	float getSpeed() {
 		return speed;
 	}
+	void setDirection(int dir) {
+		if (direction < 0 || direction > 3) return;
+		direction = dir;
+	}
 	//END getters & setters
 
 	std::array<float, 2> getPosition() const override {
@@ -62,10 +69,10 @@ public:
 	void draw() override {
 		float sx = 0, sy = 0;
 		sx = direction * 32;
-		al_draw_scaled_bitmap(bitmap, sx, sy, 32, 32, 100, 100, 128, 128, 0);
+		al_draw_scaled_bitmap(bitmap, sx, sy, 32, 32, x, y, 128, 128, 0);
 	}
 
-	void move(int direction) {
+	void move() {
 		// 0123 - TRBL
 		switch (direction) {
 			case 0:

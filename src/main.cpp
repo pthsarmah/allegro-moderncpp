@@ -5,6 +5,7 @@
 
 #include <cstdio>
 #include <print>
+#include <stdexcept>
 
 #include "../include/Display.h"
 #include "../include/Mouse.h"
@@ -16,6 +17,8 @@
 int main() {
 	al_init();
 	al_init_image_addon();
+
+	if (!al_is_image_addon_initialized()) throw std::runtime_error("Image addon could not be initialized!");
 
 	bool running = true;
 
@@ -30,11 +33,9 @@ int main() {
 	Bullet bullet;
 
 	renderer.add(bullet);
-	renderer.draw();
-
-	al_flip_display();
 
 	double prev_time = al_get_time();
+	int dir = 0;
 
 	while(running) {
 		double curr_time = al_get_time();
@@ -47,6 +48,11 @@ int main() {
 		if (mouse.GetMouseButtonPressed(0)) {
 			std::println("Left mouse button pressed!");
 			std::fflush(stdout);
+
+			bullet.setDirection((++dir) % 4);
+		} else if (mouse.GetMouseButtonReleased(0)) {
+			std::println("Left mouse button released!");
+			std::fflush(stdout);
 		}
 
 		if (kb.GetKeyPressed(ALLEGRO_KEY_S)) {
@@ -56,6 +62,11 @@ int main() {
 			std::println("Key S released!");
 			std::fflush(stdout);
 		}
+
+		bullet.move();
+
+		renderer.draw();
+		al_flip_display();
 	}
 
 	return 0;

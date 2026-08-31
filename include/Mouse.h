@@ -61,7 +61,9 @@ public:
 		return current && !previous;
 	}
 	bool GetMouseButtonReleased(unsigned int id) {
-		return true;
+		bool current = currentState.buttons & (1 << id);
+		bool previous = previousState.buttons & (1 << id);
+		return !current && previous;
 	}
 	bool GetMouseButtonUp(unsigned int id) {
 		return !buttonsDown[id];
