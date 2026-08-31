@@ -1,11 +1,12 @@
+#include <allegro5/color.h>
 #include <allegro5/display.h>
+#include <allegro5/drawing.h>
 #include <allegro5/keycodes.h>
 #include <allegro5/system.h>
 #include <allegro5/allegro_image.h>
 
-#include <cstdio>
-#include <print>
 #include <stdexcept>
+#include <unordered_map>
 
 #include "../include/Display.h"
 #include "../include/Mouse.h"
@@ -13,6 +14,7 @@
 #include "../include/Keyboard.h"
 #include "../include/Renderer.h"
 #include "../include/Bullet.h"
+#include "../include/Tank.h"
 
 int main() {
 	al_init();
@@ -30,8 +32,10 @@ int main() {
 	Keyboard kb;
 
 	//test bullet
+	Tank tank1(100, 100);
 	Bullet bullet;
 
+	renderer.add(tank1);
 	renderer.add(bullet);
 
 	double prev_time = al_get_time();
@@ -46,25 +50,28 @@ int main() {
 		kb.Update();
 
 		if (mouse.GetMouseButtonPressed(0)) {
-			std::println("Left mouse button pressed!");
-			std::fflush(stdout);
-
 			bullet.setDirection((++dir) % 4);
-		} else if (mouse.GetMouseButtonReleased(0)) {
-			std::println("Left mouse button released!");
-			std::fflush(stdout);
 		}
 
-		if (kb.GetKeyPressed(ALLEGRO_KEY_S)) {
-			std::println("Key S pressed!");
-			std::fflush(stdout);
-		} else if (kb.GetKeyReleased(ALLEGRO_KEY_S)) {
-			std::println("Key S released!");
-			std::fflush(stdout);
+		if (kb.GetKeyPressed(ALLEGRO_KEY_UP)) {
+			tank1.setDirection(0);
+		} else if (kb.GetKeyPressed(ALLEGRO_KEY_RIGHT)) {
+			tank1.setDirection(1);
+		} else if (kb.GetKeyPressed(ALLEGRO_KEY_DOWN)) {
+			tank1.setDirection(2);
+		} else if (kb.GetKeyPressed(ALLEGRO_KEY_LEFT)) {
+			tank1.setDirection(3);
 		}
+
+		if (kb.GetKeyDown(ALLEGRO_KEY_UP) ||
+		kb.GetKeyDown(ALLEGRO_KEY_DOWN) ||
+		kb.GetKeyDown(ALLEGRO_KEY_RIGHT) ||
+		kb.GetKeyDown(ALLEGRO_KEY_LEFT))
+			tank1.move();
 
 		bullet.move();
 
+		al_clear_to_color(al_map_rgb(0, 0, 0));
 		renderer.draw();
 		al_flip_display();
 	}

@@ -55,17 +55,11 @@ public:
 		return speed;
 	}
 	void setDirection(int dir) {
-		if (direction < 0 || direction > 3) return;
+		if (dir < 0 || dir > 3) return;
 		direction = dir;
 	}
 	//END getters & setters
 
-	std::array<float, 2> getPosition() const override {
-		return {x, y};
-	}
-	ALLEGRO_BITMAP* getBitmap() const override {
-		return bitmap;
-	}
 	void draw() override {
 		float sx = 0, sy = 0;
 		sx = direction * 32;
@@ -76,19 +70,23 @@ public:
 		// 0123 - TRBL
 		switch (direction) {
 			case 0:
+				if (y < 0) { y = SCREEN_HEIGHT-1; break; }
 				if (y > 0) y -= speed;
 				break;
 			case 1:
+				if (x >= SCREEN_WIDTH) { x = 0; break; }
 				if (x < SCREEN_WIDTH) x += speed;
 				break;
 			case 2:
+				if (y >= SCREEN_HEIGHT) { y = 0; break; }
 				if (y < SCREEN_HEIGHT) y += speed;
 				break;
 			case 3:
+				if (x < 0) { x = SCREEN_WIDTH-1; break; }
 				if (x > 0) x -= speed;
 				break;
 			default:
-			std::runtime_error("Wrong direction!");
+			throw std::runtime_error("Wrong direction!");
 		}
 	}
 };
