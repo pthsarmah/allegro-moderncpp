@@ -12,8 +12,10 @@
 #include "../include/Timer.h"
 #include "../include/Keyboard.h"
 #include "../include/Renderer.h"
-#include "../include/Bullet.h"
 #include "../include/Tank.h"
+#include "../include/ObjectPool.h"
+
+void handleTank(Keyboard&, Tank&);
 
 int main() {
 	al_init();
@@ -30,15 +32,17 @@ int main() {
 	Timer timer(300);
 	Keyboard kb;
 
-	//test bullet
-	Tank tank1(100, 100);
-	Tank tank2(200, 50);
+	ObjectPool<Bullet> pool(
+		PoolConfig<Bullet>{50},
+		PoolConfig<AdvancedBullet>{50}
+	);
 
-	Bullet bullet;
+	//test bullet
+	Tank tank1(100, 100, "assets/tank01.png");
+	Tank tank2(200, 50, "assets/tank02.png");
 
 	renderer.add(tank1);
 	renderer.add(tank2);
-	renderer.add(bullet);
 
 	double prev_time = al_get_time();
 	int dir = 0;
@@ -51,43 +55,8 @@ int main() {
 		mouse.Update();
 		kb.Update();
 
-		if (mouse.GetMouseButtonPressed(0)) {
-			bullet.setDirection((++dir) % 4);
-		}
-
-		if (kb.GetKeyPressed(ALLEGRO_KEY_UP)) {
-			tank1.setDirection(0);
-		} else if (kb.GetKeyPressed(ALLEGRO_KEY_RIGHT)) {
-			tank1.setDirection(1);
-		} else if (kb.GetKeyPressed(ALLEGRO_KEY_DOWN)) {
-			tank1.setDirection(2);
-		} else if (kb.GetKeyPressed(ALLEGRO_KEY_LEFT)) {
-			tank1.setDirection(3);
-		}
-
-		if (kb.GetKeyPressed(ALLEGRO_KEY_W)) {
-			tank2.setDirection(0);
-		} else if (kb.GetKeyPressed(ALLEGRO_KEY_D)) {
-			tank2.setDirection(1);
-		} else if (kb.GetKeyPressed(ALLEGRO_KEY_S)) {
-			tank2.setDirection(2);
-		} else if (kb.GetKeyPressed(ALLEGRO_KEY_A)) {
-			tank2.setDirection(3);
-		}
-
-		if (kb.GetKeyDown(ALLEGRO_KEY_UP) ||
-		kb.GetKeyDown(ALLEGRO_KEY_DOWN) ||
-		kb.GetKeyDown(ALLEGRO_KEY_RIGHT) ||
-		kb.GetKeyDown(ALLEGRO_KEY_LEFT))
-			tank1.move();
-
-		if (kb.GetKeyDown(ALLEGRO_KEY_W) ||
-		kb.GetKeyDown(ALLEGRO_KEY_S) ||
-		kb.GetKeyDown(ALLEGRO_KEY_D) ||
-		kb.GetKeyDown(ALLEGRO_KEY_A))
-			tank2.move();
-
-		bullet.move();
+		handleTank(kb, tank1);
+		handleTank(kb, tank2);
 
 		al_clear_to_color(al_map_rgb(0, 0, 0));
 		renderer.draw();
@@ -95,4 +64,21 @@ int main() {
 	}
 
 	return 0;
+}
+
+void handleTank(Keyboard& kb, Tank& tank) {
+	if (kb.GetKeyPressed(ALLEGRO_KEY_UP)) {
+		tank.setDirection(0);
+	} else if (kb.GetKeyPressed(ALLEGRO_KEY_RIGHT)) {
+		tank.setDirection(1);
+	} else if (kb.GetKeyPressed(ALLEGRO_KEY_DOWN)) {
+		tank.setDirection(2);
+	} else if (kb.GetKeyPressed(ALLEGRO_KEY_LEFT)) {
+		tank.setDirection(3);
+	}
+	if (kb.GetKeyDown(ALLEGRO_KEY_UP) ||
+	kb.GetKeyDown(ALLEGRO_KEY_DOWN) ||
+	kb.GetKeyDown(ALLEGRO_KEY_RIGHT) ||
+	kb.GetKeyDown(ALLEGRO_KEY_LEFT))
+		tank.move();
 }

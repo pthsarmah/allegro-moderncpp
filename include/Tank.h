@@ -22,12 +22,11 @@ private:
 	float health = 100.0;
 	float x, y = 0.0; //these are the CENTER coords not top left
 	float speed = 5.0;
-	Bullet bullet;
 	ALLEGRO_BITMAP* bitmap;
 	int direction = 0;
 public:
-	Tank(float x, float y): x(x), y(y) {
-		bitmap = al_load_bitmap("assets/tank01.png");
+	Tank(float x, float y, const char* path = "assets/tank01.png"): x(x), y(y) {
+		bitmap = al_load_bitmap(path);
 	}
 	Tank(const Tank&) = delete;
 	Tank& operator=(const Tank&) = delete;
@@ -45,6 +44,10 @@ public:
 
 	void draw() override {
 		al_draw_scaled_rotated_bitmap(bitmap, 15, 15, x, y, TANK_SCALE_FACTOR, TANK_SCALE_FACTOR, direction * ALLEGRO_PI / 2, 0);
+	}
+
+	void setDirectionInputMappings() {
+
 	}
 
 	void move() {
@@ -76,6 +79,24 @@ public:
 				break;
 			default:
 				throw std::runtime_error("Wrong direction!");
+		}
+	}
+
+	void shoot() {
+		float sx = x, sy = y;
+		switch (direction) {
+			case 0:
+				sy = y - 20;
+				break;
+			case 1:
+				sx = x + 20;
+				break;
+			case 2:
+				sy = y + 20;
+				break;
+			case 3:
+				sy = y - 20;
+				break;
 		}
 	}
 };

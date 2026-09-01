@@ -61,6 +61,10 @@ public:
 		if (dir < 0 || dir > 3) return;
 		direction = dir;
 	}
+	void setPosition(float xval, float yval) {
+		x = xval;
+		y = yval;
+	}
 	//END getters & setters
 
 	void draw() override {
