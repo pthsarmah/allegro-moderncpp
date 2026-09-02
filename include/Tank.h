@@ -1,6 +1,9 @@
 #pragma once
 
 #include "./Bullet.h"
+#include "./BitmapPtr.h"
+#include "Keyboard.h"
+#include "ObjectPool.h"
 
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/base.h>
@@ -9,6 +12,7 @@
 #include <allegro5/bitmap_io.h>
 #include <allegro5/color.h>
 #include <array>
+#include <cstdlib>
 #include <stdexcept>
 
 #define SCREEN_WIDTH 800
@@ -21,19 +25,13 @@ class Tank : public Entity {
 private:
 	float health = 100.0;
 	float x, y = 0.0; //these are the CENTER coords not top left
-	float speed = 5.0;
-	ALLEGRO_BITMAP* bitmap;
+	float speed = 1.0;
+	BitmapPtr bitmap;
 	int direction = 0;
 public:
-	Tank(float x, float y, const char* path = "assets/tank01.png"): x(x), y(y) {
-		bitmap = al_load_bitmap(path);
-	}
-	Tank(const Tank&) = delete;
-	Tank& operator=(const Tank&) = delete;
-	Tank(Tank&&) = delete;
-	~Tank() {
-		al_destroy_bitmap(bitmap);
-	}
+	Tank(float x, float y, const char* path = "assets/tank01.png")
+		: x(x), y(y), bitmap(loadBitmap(path)) {}
+	// rule of zero: BitmapPtr handles copy-delete, move, destroy
 
 	//getters & setters
 	void setDirection(int dir) {
@@ -43,13 +41,35 @@ public:
 	//end getters & setters
 
 	void draw() override {
-		al_draw_scaled_rotated_bitmap(bitmap, 15, 15, x, y, TANK_SCALE_FACTOR, TANK_SCALE_FACTOR, direction * ALLEGRO_PI / 2, 0);
+		al_draw_scaled_rotated_bitmap(bitmap.get(), 15, 15, x, y, TANK_SCALE_FACTOR, TANK_SCALE_FACTOR, direction * ALLEGRO_PI / 2, 0);
 	}
 
-	void setDirectionInputMappings() {
-
+	void handleMovement(Keyboard& kb, std::array<int, 4>&& keys) {
+		if (kb.GetKeyPressed(keys[0])) {
+			setDirection(0);
+		} else if (kb.GetKeyPressed(keys[1])) {
+			setDirection(1);
+		} else if (kb.GetKeyPressed(keys[2])) {
+			setDirection(2);
+		} else if (kb.GetKeyPressed(keys[3])) {
+			setDirection(3);
+		}
+		if (kb.GetKeyDown(keys[0]) ||
+		kb.GetKeyDown(keys[1]) ||
+		kb.GetKeyDown(keys[2]) ||
+		kb.GetKeyDown(keys[3]))
+			move();
+	}
+	void handleShoot(Keyboard& kb, int shootKey, Renderer& rd, ObjectPool<Bullet>& pool) {
+		if (kb.GetKeyPressed(shootKey)) {
+			Bullet& bullet = pool.instantiate<Bullet>(rd);
+			float new_x = rand() % 500;
+			float new_y = rand() % 300;
+			bullet.setPosition(new_x, new_y);
+		}
 	}
 
+private:
 	void move() {
 		// 0123 - TRBL
 		

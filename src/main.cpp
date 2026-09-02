@@ -5,6 +5,7 @@
 #include <allegro5/system.h>
 #include <allegro5/allegro_image.h>
 
+#include <array>
 #include <stdexcept>
 
 #include "../include/Display.h"
@@ -13,9 +14,10 @@
 #include "../include/Keyboard.h"
 #include "../include/Renderer.h"
 #include "../include/Tank.h"
+
 #include "../include/ObjectPool.h"
 
-void handleTank(Keyboard&, Tank&);
+void handleTank(Keyboard&, Tank&, std::array<int, 4>&&);
 
 int main() {
 	al_init();
@@ -32,14 +34,14 @@ int main() {
 	Timer timer(300);
 	Keyboard kb;
 
+	//test bullet
+	Tank tank1(100, 100, "assets/tank01.png");
+	Tank tank2(200, 50, "assets/tank02.png");
+
 	ObjectPool<Bullet> pool(
 		PoolConfig<Bullet>{50},
 		PoolConfig<AdvancedBullet>{50}
 	);
-
-	//test bullet
-	Tank tank1(100, 100, "assets/tank01.png");
-	Tank tank2(200, 50, "assets/tank02.png");
 
 	renderer.add(tank1);
 	renderer.add(tank2);
@@ -55,8 +57,21 @@ int main() {
 		mouse.Update();
 		kb.Update();
 
-		handleTank(kb, tank1);
-		handleTank(kb, tank2);
+		tank1.handleMovement(kb, std::array<int, 4>{
+			ALLEGRO_KEY_W,
+			ALLEGRO_KEY_D,
+			ALLEGRO_KEY_S,
+			ALLEGRO_KEY_A
+		});
+		tank1.handleShoot(kb, ALLEGRO_KEY_SPACE, renderer, pool);
+
+		tank2.handleMovement(kb, std::array<int, 4>{
+			ALLEGRO_KEY_UP,
+			ALLEGRO_KEY_RIGHT,
+			ALLEGRO_KEY_DOWN,
+			ALLEGRO_KEY_LEFT
+		});
+		tank2.handleShoot(kb, ALLEGRO_KEY_RSHIFT, renderer, pool);
 
 		al_clear_to_color(al_map_rgb(0, 0, 0));
 		renderer.draw();
@@ -64,21 +79,4 @@ int main() {
 	}
 
 	return 0;
-}
-
-void handleTank(Keyboard& kb, Tank& tank) {
-	if (kb.GetKeyPressed(ALLEGRO_KEY_UP)) {
-		tank.setDirection(0);
-	} else if (kb.GetKeyPressed(ALLEGRO_KEY_RIGHT)) {
-		tank.setDirection(1);
-	} else if (kb.GetKeyPressed(ALLEGRO_KEY_DOWN)) {
-		tank.setDirection(2);
-	} else if (kb.GetKeyPressed(ALLEGRO_KEY_LEFT)) {
-		tank.setDirection(3);
-	}
-	if (kb.GetKeyDown(ALLEGRO_KEY_UP) ||
-	kb.GetKeyDown(ALLEGRO_KEY_DOWN) ||
-	kb.GetKeyDown(ALLEGRO_KEY_RIGHT) ||
-	kb.GetKeyDown(ALLEGRO_KEY_LEFT))
-		tank.move();
 }

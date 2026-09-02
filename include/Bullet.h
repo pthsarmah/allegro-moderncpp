@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./Entity.h"
+#include "./BitmapPtr.h"
 #include <allegro5/bitmap.h>
 #include <allegro5/bitmap_draw.h>
 #include <allegro5/bitmap_io.h>
@@ -24,23 +25,11 @@ private:
 	float x = 0.0, y = 0.0;
 	float speed = 1.0;
 	int direction = 1;
-	ALLEGRO_BITMAP* bitmap;
+	BitmapPtr bitmap;
+protected:
+	explicit Bullet(const char* path): bitmap(loadBitmap(path)) {}
 public:
-	Bullet() {
-		bitmap = al_load_bitmap("assets/bullet.png");
-		if (!bitmap) throw std::runtime_error("Bitmap could not be loaded");
-	}
-	Bullet(const char* path) {
-		bitmap = al_load_bitmap(path);
-		if (!bitmap) throw std::runtime_error("Bitmap could not be loaded");
-	}
-	Bullet(const Bullet&) = delete;
-	Bullet& operator=(const Bullet&) = delete;
-	Bullet(Bullet&&) = delete;
-	Bullet& operator=(Bullet&&) = delete;
-	~Bullet() {
-		al_destroy_bitmap(bitmap);
-	}
+	Bullet(): Bullet("assets/bullet.png") {}
 
 	//getters & setters
 	void setDamagePerHit(float amount) {
@@ -70,7 +59,7 @@ public:
 	void draw() override {
 		float sx = 0, sy = 0;
 		sx = direction * 32;
-		al_draw_scaled_bitmap(bitmap, sx, sy, 32, 32, x, y, BULLET_WIDTH, BULLET_HEIGHT, 0);
+		al_draw_scaled_bitmap(bitmap.get(), sx, sy, 32, 32, x, y, BULLET_WIDTH, BULLET_HEIGHT, 0);
 	}
 
 	void move() {
@@ -107,7 +96,8 @@ public:
 };
 
 class AdvancedBullet : public Bullet {
-	AdvancedBullet(): Bullet("assets/advanced_bullet.png") {
+public:
+	AdvancedBullet(): Bullet("assets/bullet.png") {
 		setDamagePerHit(10.0);
 		setSpeed(5.0);
 	}
